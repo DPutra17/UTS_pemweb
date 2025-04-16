@@ -24,6 +24,7 @@
 
       .navbar {
         transition: background-color 0.3s ease;
+        padding: 16px 50px 16px 50px;
       }
       .navbar-transparent {
         background-color: transparent !important;
@@ -31,14 +32,10 @@
       .navbar-scrolled {
         background-color: #e0e0e0 !important;
       }
-      .navbar-toggler {
-        border: none;
-        background-color: rgba(255, 255, 255, 0.5);
-      }
 
       .navbar-transparent .nav-link,
       .navbar-transparent .navbar-brand {
-        color: #000000 !important;
+        color: #000 !important;
       }
 
       .navbar-scrolled .nav-link,
@@ -70,39 +67,55 @@
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
       }
 
+      @media (max-width: 767px) {
+        .navbar-brand-centered {
+          display: none !important;
+        }
+
+        .navbar-nav {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .nav-item {
+          margin: 10px 0;
+        }
+      }
 
     </style>
   </head>
   <body>
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top navbar-transparent special-gothic-expanded-one-regular bg-light">
-      <div class="container position-relative">
-    
-        <!-- Logo in the center -->
-        <img class="navbar-brand-centered" style="margin-left: -10px;" width="30" height="auto" src="assets/icon.png" href=""></img>
-        
-        <button
-          class="navbar-toggler ms-auto"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top navbar-transparent special-gothic-expanded-one-regular">
+      <div class="container">
+        <!-- Logo -->
+        <a class="navbar-brand d-lg-none" href="#">
+          <img src="assets/icon.png" width="30" alt="Logo" />
+        </a>
+
+        <!-- Toggle button -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarNav" aria-controls="navbarNav"
+          aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
 
+        <!-- Centered Logo on Desktop -->
+        <a class="navbar-brand mx-auto d-none d-lg-block navbar-brand-centered" href="#">
+          <img src="assets/icon.png" width="30" alt="Logo" />
+        </a>
+
+        <!-- Menu Items -->
         <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-          <ul class="navbar-nav">
+          <ul class="navbar-nav mx-auto text-center">
             <li class="nav-item">
               <a class="nav-link active" href="#">Home</a>
             </li>
-            <li class="nav-item invisible">
+            <li class="nav-item d-none d-lg-block invisible">
               <a class="nav-link" href="#">Invisible</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Product</a>
+              <a class="nav-link" href="Product.html">Product</a>
             </li>
           </ul>
         </div>
