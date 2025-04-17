@@ -1,293 +1,298 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Web UMKM - KopiKita</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-      crossorigin="anonymous"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-    <style>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    .product-card { 
+      margin-bottom: 20px; 
+    }
+    .product-card img { 
+      max-width: 100%; 
+      height: auto; 
+    }
 
-      .special-gothic-expanded-one-regular {
-        font-family: "Special Gothic Expanded One", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-      }
+    .card {
+      transition: box-shadow 0.3s ease;
+      overflow: hidden;
+      border: 1px solid rgba(0,0,0,.125);
+      position: relative;
+    }
+    .card:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
 
-      .navbar {
-        transition: background-color 0.3s ease;
-      }
-      .navbar-transparent {
-        background-color: transparent !important;
-      }
-      .navbar-scrolled {
-        background-color: #e0e0e0 !important;
-      }
-      .navbar-toggler {
-        border: none;
-        background-color: rgba(255, 255, 255, 0.5);
-      }
-
-      .navbar-transparent .nav-link,
-      .navbar-transparent .navbar-brand {
-        color: #000000 !important;
-      }
-
-      .navbar-scrolled .nav-link,
-      .navbar-scrolled .navbar-brand {
-        color: #000 !important;
-      }
-      .navbar-nav {
-        flex-direction: row;
-        justify-content: center;
-        width: 100%;
-      }
-
-      .nav-item {
-        margin: 0 15px;
-      }
-
-      .navbar-brand-centered {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-
-      .card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-
-      .card:hover {
-        transform: scale(1.03);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-      }
-
-
-    </style>
-  </head>
-  <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top navbar-transparent special-gothic-expanded-one-regular bg-light">
-      <div class="container position-relative">
-    
-        <!-- Logo in the center -->
-        <img class="navbar-brand-centered" style="margin-left: -10px;" width="30" height="auto" src="assets/icon.png" href=""></img>
-        
-        <button
-          class="navbar-toggler ms-auto"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-          <ul class="navbar-nav">
-            <li class="nav-item">
-              <a class="nav-link active" href="#">Home</a>
-            </li>
-            <li class="nav-item invisible">
-              <a class="nav-link" href="#">Invisible</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Product</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <section class="container py-5" id="order-page">
-    <div class="row">
-        <!-- Katalog Produk -->
-        <div class="col-lg-8">
-        <h3 class="mb-4">Pilih Produk</h3>
-        <div class="mb-4">
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.1);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    .card:hover::after {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="container py-4">
+  <h2 class="mb-4">Pilih Produk</h2>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="mb-4">
         <label for="filter-category" class="form-label">Filter Kategori</label>
         <select class="form-select" id="filter-category" onchange="filterProducts()">
-            <option value="all">Semua</option>
-            <option value="dompet">Dompet</option>
-            <option value="tas">Tas</option>
-            <option value="aksesoris">Aksesoris</option>
+          <option value="all">Semua</option>
+          <option value="dompet">dompet</option>
+          <option value="tas">tas</option>
+          <option value="jaket">jaket</option> 
         </select>
-        </div>
-
-        <div class="row" id="product-list">
-            <!-- Contoh produk -->
-            <div class="col-md-4 mb-4 product-card" data-category="dompet">
-            <div class="card h-100">
-                <img src="assets/dompet-1.png" class="card-img-top" alt="Dompet Kulit">
-                <div class="card-body text-center">
-                <h5 class="card-title">Dompet Kulit</h5>
-                <p class="card-text">Rp 150.000</p>
-                <button class="btn btn-sm btn-outline-success" onclick="addToCart('Dompet Kulit', 150000)">+</button>
-                </div>
-            </div>
-            </div>
-
-            <div class="col-md-4 mb-4 product-card" data-category="tas">
-            <div class="card h-100">
-                <img src="assets/dompet-2.png" class="card-img-top" alt="Dompet Kulit">
-                <div class="card-body text-center">
-                <h5 class="card-title">Tas Selempang</h5>
-                <p class="card-text">Rp 250.000</p>
-                <button class="btn btn-sm btn-outline-success" onclick="addToCart('Tas Selempang', 250000)">+</button>
-                </div>
-            </div>
-            </div>
-
-            <div class="col-md-4 mb-4 product-card" data-category="aksesoris">
-            <div class="card h-100">
-                <img src="assets/dompet-3.png" class="card-img-top" alt="Dompet Kulit">
-                <div class="card-body text-center">
-                <h5 class="card-title">Ikat Pinggang</h5>
-                <p class="card-text">Rp 100.000</p>
-                <button class="btn btn-sm btn-outline-success" onclick="addToCart('Ikat Pinggang', 100000)">+</button>
-                </div>
-            </div>
-            </div>
-        </div>
-        </div>
-
-        <!-- Keranjang Belanja -->
-        <div class="col-lg-4 border rounded shadow-sm">
-          <h3 class="mb-4">Keranjang</h3>
-          <ul class="list-group mb-3" id="cart-items"></ul>
-          <h5>Total: <span id="cart-total">Rp 0</span></h5>
-          <button class="btn btn-primary mt-3 w-100" onclick="checkout()">Checkout</button>
-        </div>
+      </div>
+      <div class="row" id="product-list"></div>
     </div>
-    </section>
+    <div class="col-md-4">
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Keranjang</h5>
+          <ul class="list-group mb-3" id="cart-items"></ul>
+          <h6>Total: <span id="cart-total">Rp 0</span></h6>
+          <button class="btn btn-primary w-100" onclick="checkout()">Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <script>
+    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVLdykdjAbNzREUgHX549VEg6emNlw0rMzqjhz5dkc-XQtrejEYbhOvlLnIA8MzSDLSP0F7ZWaWsF-/pub?gid=0&single=true&output=csv";
+    const webAppURL = "https://script.google.com/macros/s/AKfycbyb-DY-7WJjA0p7PuJmucSInU_vPS9x6ZDDWTHB3VdaRJCsXTpItKy7xBcEC8jNENMd/exec";
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-      crossorigin="anonymous"
-    ></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-      AOS.init();
-    </script>
-    <script>
-      const navbar = document.querySelector('.navbar');
-    
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 100) {
-          navbar.classList.remove('navbar-transparent');
-          navbar.classList.add('navbar-scrolled');
-        } else {
-          navbar.classList.add('navbar-transparent');
-          navbar.classList.remove('navbar-scrolled');
-        }
+    let cart = [];
+    let allProducts = [];
+    let productIndex = 0; // Used to create unique identifiers for products
+
+    function renderCart() {
+      const cartList = document.getElementById("cart-items");
+      const totalDisplay = document.getElementById("cart-total");
+      cartList.innerHTML = "";
+
+      let total = 0;
+      cart.forEach((item, index) => {
+        const itemTotal = item.harga * item.qty;
+        total += itemTotal;
+
+        const li = document.createElement("li");
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+          <div>
+            <strong>${item.nama}</strong><br>
+            <small>${item.qty} x Rp ${item.harga.toLocaleString()}</small>
+            <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeFromCart(${index})">-</button>
+          </div>
+          <span>Rp ${itemTotal.toLocaleString()}</span>
+        `;
+        cartList.appendChild(li);
       });
-    </script>
-    <script>
-      function handleNavbarStyle() {
-        const isScrolled = window.scrollY > 100;
-        const isMobile = window.innerWidth < 992; // 992px adalah breakpoint lg di Bootstrap
 
-        if (isScrolled || isMobile) {
-          navbar.classList.remove('navbar-transparent');
-          navbar.classList.add('navbar-scrolled');
-        } else {
-          navbar.classList.add('navbar-transparent');
-          navbar.classList.remove('navbar-scrolled');
-        }
+      totalDisplay.textContent = "Rp " + total.toLocaleString();
+    }
+
+    function addToCart(productId) {
+      // Find the product in allProducts array
+      const product = allProducts.find(p => p.id === productId);
+      if (!product) return;
+      
+      const existing = cart.find(item => item.id === productId);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ 
+          id: product.id,
+          nama: product.nama,
+          harga: product.harga,
+          qty: 1 
+        });
+      }
+      renderCart();
+    }
+
+    function removeFromCart(index) {
+      if (cart[index].qty > 1) {
+        cart[index].qty--;
+      } else {
+        cart.splice(index, 1);
+      }
+      renderCart();
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert("Keranjang kosong!");
+        return;
       }
 
-      window.addEventListener('scroll', handleNavbarStyle);
-      window.addEventListener('resize', handleNavbarStyle);
-      window.addEventListener('DOMContentLoaded', handleNavbarStyle);
-    </script>
-    <script>
-        let cart = [];
+      const payload = JSON.stringify({
+        order: cart.map(item => ({
+          nama: item.nama,
+          harga: item.harga,
+          qty: item.qty
+        }))
+      });
 
-        function addToCart(name, price) {
-            const existing = cart.find(item => item.name === name);
-            if (existing) {
-            existing.qty++;
-            } else {
-            cart.push({ name, price, qty: 1 });
-            }
-            renderCart();
+      const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
+      const originalText = checkoutBtn.textContent;
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = "Processing...";
+
+      fetch(webAppURL, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'text/plain' 
+        },
+        body: payload
+      })
+      .then(response => {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = originalText;
+        alert("Pesanan berhasil dikirim!");
+        cart = [];
+        renderCart();
+        loadProducts(); 
+      })
+      .catch(err => {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = originalText;
+        alert("Gagal mengirim pesanan: " + err.message);
+        console.error("Fetch error:", err);
+      });
+    }
+
+    // Improved CSV parsing function to handle your specific data format
+    function parseCSVRow(row) {
+      const result = [];
+      let startIdx = 0;
+      let inQuotes = false;
+      
+      for (let i = 0; i < row.length; i++) {
+        if (row[i] === '"') {
+          inQuotes = !inQuotes;
+        } 
+        else if ((row[i] === ',' && !inQuotes) || i === row.length - 1) {
+          let endIdx = i === row.length - 1 ? i + 1 : i;
+          let field = row.substring(startIdx, endIdx);
+          
+          if (field.startsWith('"') && field.endsWith('"')) {
+            field = field.substring(1, field.length - 1);
+          }
+          
+          result.push(field);
+          startIdx = i + 1;
         }
+      }
+      
+      return result;
+    }
 
-        function removeFromCart(index) {
-            if (cart[index].qty > 1) {
-                cart[index].qty--;
-            } else {
-                cart.splice(index, 1);
-            }
-            renderCart();
-        }
+    // Extract numeric price from various formats (e.g., "150000 p")
+    function extractPrice(priceString) {
+      // Extract only the numeric part
+      const numericMatch = priceString.match(/\d+/);
+      if (numericMatch) {
+        return parseInt(numericMatch[0], 10);
+      }
+      return 0;
+    }
 
+    function loadProducts() {
+      fetch(sheetURL)
+        .then(res => res.text())
+        .then(data => {
+          const rows = data.trim().split("\n").slice(1); // Skip header row
+          const productList = document.getElementById("product-list");
+          productList.innerHTML = "";
+          allProducts = [];
+          productIndex = 0;
 
-        function renderCart() {
-            const cartList = document.getElementById("cart-items");
-            const totalDisplay = document.getElementById("cart-total");
-            cartList.innerHTML = "";
-
-            let total = 0;
-
-            cart.forEach((item, index) => {
-            const itemTotal = item.price * item.qty;
-            total += itemTotal;
-
-            const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.innerHTML = `
-                <div>
-                <strong>${item.name}</strong><br>
-                <small>
-                    ${item.qty} x Rp ${item.price.toLocaleString()}
-                    <button class="btn btn-sm btn-outline-danger btn-sm ms-2" onclick="removeFromCart(${index})">-</button>
-                </small>
+          rows.forEach(row => {
+            const fields = parseCSVRow(row);
+            if (fields.length < 6) return; // We need at least 6 fields based on your table
+            
+            const nama = fields[0].trim();
+            const gambar = fields[1].trim();
+            const stok = parseInt(fields[2], 10);
+            const hargaRaw = fields[3].trim();
+            const deskripsi = fields[4].trim();  
+            const kategori = fields[5].trim();
+            
+            // Extract numeric price from the price field
+            const harga = extractPrice(hargaRaw);
+            
+            if (isNaN(stok) || stok <= 0) return; // Skip out of stock items
+            
+            // Assign a unique ID to each product
+            const productId = ++productIndex;
+            
+            // Store product in global array
+            allProducts.push({ 
+              id: productId,
+              nama, 
+              gambar, 
+              stok, 
+              harga, 
+              deskripsi, 
+              kategori 
+            });
+            
+            const col = document.createElement("div");
+            col.className = "col-md-4 mb-4 product-card";
+            col.setAttribute("data-category", kategori);
+            col.innerHTML = `
+              <div class="card h-100">
+                <img src="${gambar}" class="card-img-top" alt="${nama}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                <div class="card-body text-center">
+                  <h5 class="card-title">${nama}</h5>
+                  <p class="card-text">Rp ${harga.toLocaleString()}</p>
+                  <p class="card-text"><small class="text-muted">${deskripsi || ''}</small></p>
+                  <p class="card-text"><small class="text-muted">Kategori: ${kategori}</small></p>
+                  <button class="btn btn-sm btn-outline-success" onclick="addToCart(${productId})">+</button>
                 </div>
-                <span>Rp ${itemTotal.toLocaleString()}</span>
+              </div>
             `;
-            cartList.appendChild(li);
-            });
+            productList.appendChild(col);
+          });
+          
+          filterProducts();
+        })
+        .catch(error => {
+          console.error("Error loading products:", error);
+          document.getElementById("product-list").innerHTML = 
+            `<div class="col-12 text-center text-danger">
+              <p>Gagal memuat produk. Silakan coba lagi nanti.</p>
+            </div>`;
+        });
+    }
 
-            totalDisplay.textContent = "Rp " + total.toLocaleString();
+    function filterProducts() {
+      const selectedCategory = document.getElementById("filter-category").value;
+      const productCards = document.querySelectorAll(".product-card");
+      
+      productCards.forEach(card => {
+        const category = card.getAttribute("data-category");
+        
+        if (selectedCategory === "all" || category === selectedCategory) {
+          card.style.display = "block";
+        } else {
+          card.style.display = "none";
         }
+      });
+    }
 
-        function checkout() {
-            if (cart.length === 0) {
-            alert("Keranjang masih kosong!");
-            return;
-            }
-
-            // Di sini kamu bisa arahkan ke halaman checkout atau proses submit
-            alert("Terima kasih! Pesanan Anda diproses.");
-            cart = [];
-            renderCart();
-        }
-    </script>
-    <script>
-        function filterProducts() {
-            const selected = document.getElementById("filter-category").value;
-            const cards = document.querySelectorAll(".product-card");
-
-            cards.forEach(card => {
-            const category = card.getAttribute("data-category");
-            card.style.display = (selected === "all" || category === selected) ? "block" : "none";
-            });
-        }
-    </script>
-
-
-  </body>
+    window.addEventListener('DOMContentLoaded', loadProducts);
+  </script>
+</body>
 </html>
