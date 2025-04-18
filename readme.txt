@@ -1,0 +1,4 @@
+sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVLdykdjAbNzREUgHX549VEg6emNlw0rMzqjhz5dkc-XQtrejEYbhOvlLnIA8MzSDLSP0F7ZWaWsF-/pub?gid=0&single=true&output=csv";
+webAppURL = "https://script.google.com/macros/s/AKfycbyb-DY-7WJjA0p7PuJmucSInU_vPS9x6ZDDWTHB3VdaRJCsXTpItKy7xBcEC8jNENMd/exec";
+
+link hosting = https://kerajinankita.xzyenthusiast.net
