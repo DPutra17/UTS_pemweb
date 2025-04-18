@@ -201,6 +201,21 @@
       footer i.bi:hover {
         color: #f5c542; /* efek hover */
       }
+
+      @media (max-width: 767px) {
+        .navbar-brand-centered {
+          display: none !important;
+        }
+
+        .navbar-nav {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .nav-item {
+          margin: 10px 0;
+        }
+      }
     </style>
   </head>
   <body>
