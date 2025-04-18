@@ -212,8 +212,10 @@
           <div class="card-body">
             <h5 class="card-title">Keranjang</h5>
             <form id="order-info" class="mb-3">
-              <div class="mb-2">
+              <div class="mb-2 d-flex justify-content-between align-items-center">
                 <label for="namaPemesan" class="form-label">Nama Pemesan</label>
+                <a href="#" id="clear-form" class="text-danger" style="font-size: 0.9rem;">Clear Form</a>
+              </div>
                 <input
                   type="text"
                   class="form-control"
@@ -221,7 +223,6 @@
                   placeholder="Masukkan nama Anda"
                   required
                 />
-              </div>
               <div class="mb-2">
                 <label for="alamatPemesan" class="form-label"
                   >Alamat Pemesan</label
@@ -251,8 +252,8 @@
             <button class="btn btn-primary w-100 mb-2" onclick="checkout()">
               Checkout
             </button>
-            <button class="btn btn-outline-danger w-100" onclick="clearCart()">
-              Hapus Semua
+            <button id="clear-cart-btn" class="btn btn-outline-danger w-100" onclick="clearCart()">
+              Hapus Semua Item
             </button>
           </div>
         </div>
@@ -465,6 +466,8 @@
         loadProducts();
         loadCartFromLocalStorage();
 
+        addConfirmationModal();
+
         modals.emptyCart = new bootstrap.Modal(
           document.getElementById("emptyCartModal")
         );
@@ -478,6 +481,23 @@
           document.getElementById("loadingModal")
         );
 
+        const clearFormBtn = document.getElementById("clear-form");
+        if (clearFormBtn) {
+          checkFormContent();
+          
+          clearFormBtn.addEventListener("click", function() {
+            document.getElementById("namaPemesan").value = "";
+            document.getElementById("alamatPemesan").value = "";
+            document.getElementById("metodePembayaran").selectedIndex = 0;
+
+            clearFormBtn.style.display = "none";
+          });
+        }
+
+        document.getElementById("namaPemesan").addEventListener("input", checkFormContent);
+        document.getElementById("alamatPemesan").addEventListener("input", checkFormContent);
+        document.getElementById("metodePembayaran").addEventListener("change", checkFormContent);
+
         document
           .getElementById("successModal")
           .addEventListener("hidden.bs.modal", () => {
@@ -486,17 +506,30 @@
 
         const confirmClearBtn = document.getElementById("confirmClearCart");
         if (confirmClearBtn) {
-          const newConfirmBtn = confirmClearBtn.cloneNode(true);
-          confirmClearBtn.parentNode.replaceChild(
-            newConfirmBtn,
-            confirmClearBtn
-          );
+          confirmClearBtn.addEventListener("click", function() {
+            cart = [];
+            localStorage.removeItem("shoppingCart");
+            renderCart();
+            const clearCartModal = bootstrap.Modal.getInstance(document.getElementById("clearCartModal"));
+            clearCartModal.hide();
+          });
+        }
+
+        const clearCartBtn = document.getElementById("clear-cart-btn");
+        if (clearCartBtn) {
+          if (cart.length === 0) {
+            clearCartBtn.style.display = "none";
+          } else {
+            clearCartBtn.style.display = "block";
+          }
         }
       });
 
       function renderCart() {
         const cartList = document.getElementById("cart-items");
         const totalDisplay = document.getElementById("cart-total");
+        const clearCartBtn = document.getElementById("clear-cart-btn"); 
+        
         cartList.innerHTML = "";
 
         let total = 0;
@@ -524,13 +557,18 @@
         });
 
         totalDisplay.textContent = "Rp " + total.toLocaleString();
+
+        if (cart.length === 0) {
+          clearCartBtn.style.display = "none";
+        } else {
+          clearCartBtn.style.display = "block";
+        }
       }
 
       function switchView(view) {
         currentView = view;
         currentPage = 1;
 
-        // Toggle active class on buttons
         document
           .getElementById("card-view-btn")
           .classList.toggle("active", view === "card");
@@ -538,7 +576,6 @@
           .getElementById("table-view-btn")
           .classList.toggle("active", view === "table");
 
-        // Show/hide containers
         document.querySelector(".card-view-container").style.display =
           view === "card" ? "block" : "none";
         document.querySelector(".table-view-container").style.display =
@@ -603,6 +640,17 @@
           return;
         }
 
+        const confirmModal = new bootstrap.Modal(document.getElementById("confirmCheckoutModal"));
+        document.getElementById("agreeTerms").checked = false;
+        document.getElementById("confirmCheckoutBtn").disabled = true;
+        confirmModal.show();
+      }
+
+      function processCheckout() {
+        const nama = document.getElementById("namaPemesan").value.trim();
+        const alamat = document.getElementById("alamatPemesan").value.trim();
+        const metode = document.getElementById("metodePembayaran").value;
+        
         const payload = JSON.stringify({
           namaPemesan: nama,
           alamatPemesan: alamat,
@@ -618,17 +666,16 @@
 
         modals.loading.show();
 
-        // For Apps Script Web Apps, use text/plain content type
         fetch(webAppURL, {
           method: "POST",
           headers: {
-            "Content-Type": "text/plain",  // Changed back to text/plain for Apps Script
+            "Content-Type": "text/plain",  
           },
           body: payload,
-          mode: "no-cors"  // Add this to bypass CORS restriction
+          mode: "no-cors"  
         })
           .then((response) => {
-            // When using no-cors, we can't access the response content
+      
             modals.loading.hide();
             modals.success.show();
 
@@ -685,7 +732,7 @@
         fetch(sheetURL)
           .then((res) => res.text())
           .then((data) => {
-            const rows = data.trim().split("\n").slice(1); // Skip header row
+            const rows = data.trim().split("\n").slice(1); 
             allProducts = [];
             productIndex = 0;
 
@@ -975,6 +1022,62 @@
 
             clearCartModal.hide();
           });
+      }
+
+      function checkFormContent() {
+        const namaPemesan = document.getElementById("namaPemesan").value.trim();
+        const alamatPemesan = document.getElementById("alamatPemesan").value.trim();
+        const metodePembayaran = document.getElementById("metodePembayaran").value;
+
+        const clearFormBtn = document.getElementById("clear-form");
+
+        if (namaPemesan || alamatPemesan || metodePembayaran) {
+          clearFormBtn.style.display = "inline";
+        } else {
+          clearFormBtn.style.display = "none"; 
+        }
+      }
+
+      function addConfirmationModal() {
+        const modalHTML = `
+        <div class="modal fade" id="confirmCheckoutModal" tabindex="-1" aria-labelledby="confirmCheckoutModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="confirmCheckoutModalLabel">Konfirmasi Pesanan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Apakah Anda yakin ingin melanjutkan proses checkout?</p>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                  <label class="form-check-label" for="agreeTerms">
+                    Saya setuju dengan syarat dan ketentuan yang berlaku
+                  </label>
+                  <div class="invalid-feedback">
+                    Anda harus menyetujui syarat dan ketentuan untuk melanjutkan.
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="confirmCheckoutBtn" disabled>Proses Pesanan</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        document.getElementById('agreeTerms').addEventListener('change', function() {
+          document.getElementById('confirmCheckoutBtn').disabled = !this.checked;
+        });
+
+        document.getElementById('confirmCheckoutBtn').addEventListener('click', function() {
+          const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmCheckoutModal'));
+          confirmModal.hide();
+          processCheckout();
+        });
       }
     </script>
   </body>
