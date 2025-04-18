@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Order Page</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <style>
     :root {
@@ -138,12 +139,12 @@
         </div>
         <div class="view-toggle d-flex align-items-end">
           <label class="me-2">Tampilan:</label>
-          <div class="btn-group" role="group">
+          <div class="btn-group w-50" role="group">
             <button type="button" class="btn btn-outline-primary active" id="card-view-btn" onclick="switchView('card')">
-              <span>Kartu</span>
+              <i class="bi bi-grid"></i> b
             </button>
             <button type="button" class="btn btn-outline-primary" id="table-view-btn" onclick="switchView('table')">
-              <span>Tabel</span>
+              <i class="bi bi-list"></i> 
             </button>
           </div>
         </div>
@@ -157,7 +158,7 @@
       <!-- Table View Container -->
       <div class="table-view-container">
         <div class="table-responsive">
-          <table class="table table-striped">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>Nama</th>
@@ -626,7 +627,7 @@
           <td>${product.kategori}</td>
           <td>${product.deskripsi || '-'}</td>
           <td>
-            <button class="btn btn-sm btn-outline-success" onclick="addToCart(${product.id})">
+            <button class="btn btn-sm btn-primary" onclick="addToCart(${product.id})">
               Tambah
             </button>
           </td>
