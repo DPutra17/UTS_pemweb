@@ -22,8 +22,11 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
     />
     <style>
-      html {
-        scroll-behavior: smooth;
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden;
       }
 
       .special-gothic-expanded-one-regular {
@@ -34,7 +37,8 @@
 
       .navbar {
         transition: background-color 0.3s ease;
-        padding: 16px 50px 16px 50px;
+        padding: 16px 16px ;
+        max-width: 100%;
       }
       .navbar-transparent {
         background-color: transparent !important;
@@ -70,17 +74,19 @@
 
       .banner {
         background-color: rgb(150, 82, 39);
-        z-index: -2;
         padding: 16px 50px 16px 50px;
+        overflow-x: hidden;
+        box-sizing: border-box;
       }
 
       .banner img {
+        position: relative;
         height: 100vh;
         opacity: 100%;
         z-index: 3;
-      }
+      } 
 
-      .banner p {
+       .banner p {
         z-index: 2;
         position: fixed;
         font-size: 5rem;
@@ -240,7 +246,7 @@
     <nav class="navbar navbar-expand-lg navbar-light fixed-top navbar-transparent special-gothic-expanded-one-regular">
       <div class="container">
         <!-- Mobile Logo -->
-        <a class="navbar-brand d-lg-none" href="index.html">
+        <a class="navbar-brand d-lg-none" href="/">
           <i class="bi bi-house-door-fill fs-4"></i>
         </a>
     
@@ -256,7 +262,7 @@
           <ul class="navbar-nav mx-auto text-center align-items-center">
             <!-- Left -->
             <li class="nav-item">
-              <a class="nav-link" href="Product.html">Product</a>
+              <a class="nav-link" href="product.html">Product</a>
             </li>
             <li class="nav-item">
               <a class="nav-link active" href="about.html">About</a>
@@ -264,7 +270,7 @@
             
             <!-- Desktop Logo (Centered) -->
             <li class="nav-item d-none d-lg-block mx-3">
-              <a class="navbar-brand m-0 d-flex justify-content-center" href="index.html">
+              <a class="navbar-brand m-0 d-flex justify-content-center" href="/">
                 <i class="bi bi-house-door-fill fs-4"></i>
               </a>
             </li>
@@ -280,17 +286,15 @@
       </div>
     </nav>
     <!-- Banner -->
-    <div class="banner d-flex justify-content-center align-items-center">
-      <img
-        src="assets/leather_wallet_1.png"
-        class="d-flex justify-content-center"
-        alt=""
-      />
-      <p class="special-gothic-expanded-one-regular">KERAJINAN KULIT</p>
-      <!-- <div class="d-flex gap-3 flex-wrap justify-content-center">
-        <a href="#section-1" class="btn custom-btn">Selengkapnya</a>
-        <a href="Product.html" class="btn custom-btn">Beli Sekarang</a>
-      </div> -->
+    <div class="container-fluid p-0">
+      <div class="banner d-flex justify-content-center align-items-center flex-column">
+        <img
+          src="assets/leather_wallet_1.png"
+          class=""
+          alt=""
+        />
+        <p class="special-gothic-expanded-one-regular">KERAJINAN KULIT</p>
+      </div>
     </div>
 
     <!-- Section 1 -->
