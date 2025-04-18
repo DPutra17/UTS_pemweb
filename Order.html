@@ -135,6 +135,16 @@
     </style>
   </head>
   <body class="container py-4">
+    <!-- Navbar -->
+    <nav class="navbar navbar-light bg-light mb-4">
+      <div class="container-fluid">
+        <a class="btn btn-outline-primary" href="product.html">
+          <i class="bi bi-arrow-left"></i> Kembali
+        </a>
+      </div>
+    </nav>
+
+    <!-- Product Selection -->
     <h2 class="mb-4">Pilih Produk</h2>
     <div class="row">
       <div class="col-md-8">
@@ -622,10 +632,10 @@
         fetch(webAppURL, {
           method: "POST",
           headers: {
-            "Content-Type": "text/plain",  // Changed back to text/plain for Apps Script
+            "Content-Type": "text/plain", // Changed back to text/plain for Apps Script
           },
           body: payload,
-          mode: "no-cors"  // Add this to bypass CORS restriction
+          mode: "no-cors", // Add this to bypass CORS restriction
         })
           .then((response) => {
             // When using no-cors, we can't access the response content
@@ -647,7 +657,6 @@
             console.error("Fetch error:", err);
           });
       }
-
 
       function parseCSVRow(row) {
         const result = [];
