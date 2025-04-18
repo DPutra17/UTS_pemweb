@@ -608,24 +608,28 @@
           alamatPemesan: alamat,
           metodePembayaran: metode,
           order: cart.map((item) => ({
-            nama: item.nama,
+            namaBarang: item.nama,
             harga: item.harga,
             qty: item.qty,
           })),
         });
 
+        console.log("Sending payload:", payload);
+
         modals.loading.show();
 
+        // For Apps Script Web Apps, use text/plain content type
         fetch(webAppURL, {
           method: "POST",
           headers: {
-            "Content-Type": "text/plain",
+            "Content-Type": "text/plain",  // Changed back to text/plain for Apps Script
           },
           body: payload,
+          mode: "no-cors"  // Add this to bypass CORS restriction
         })
           .then((response) => {
+            // When using no-cors, we can't access the response content
             modals.loading.hide();
-
             modals.success.show();
 
             cart = [];
@@ -643,6 +647,7 @@
             console.error("Fetch error:", err);
           });
       }
+
 
       function parseCSVRow(row) {
         const result = [];
