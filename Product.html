@@ -551,9 +551,9 @@
         );
         toast.show();
 
-        // Navigate to Order.html after a short delay
+        // Navigate to order.html after a short delay
         setTimeout(() => {
-          window.location.href = "Order.html";
+          window.location.href = "order.html";
         }, 800);
       }
 
@@ -827,7 +827,7 @@
         document.body.appendChild(container);
         return container;
       }
-      
+
       // Function to update pagination controls
       function updatePagination(totalPages) {
         const paginationElement = document.getElementById("pagination");
@@ -1029,7 +1029,7 @@
                         harga: product.harga,
                         gambar: product.gambar,
                         qty: 1,
-                        kategori: product.kategori || "general", // Add kategori for compatibility with Order.html
+                        kategori: product.kategori || "general", // Add kategori for compatibility with order.html
                       });
                     }
 
@@ -1042,9 +1042,9 @@
                     );
                     toast.show();
 
-                    // Navigate to Order.html after a short delay
+                    // Navigate to order.html after a short delay
                     setTimeout(() => {
-                      window.location.href = "Order.html";
+                      window.location.href = "order.html";
                     }, 800);
                   }
                 });
