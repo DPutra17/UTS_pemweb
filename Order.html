@@ -78,6 +78,7 @@
           <ul class="list-group mb-3" id="cart-items"></ul>
           <h6>Total: <span id="cart-total">Rp 0</span></h6>
           <button class="btn btn-primary w-100" onclick="checkout()">Checkout</button>
+          <button class="btn btn-outline-danger w-100" onclick="clearCart()">Hapus Semua</button>
         </div>
       </div>
     </div>
@@ -158,21 +159,47 @@
     </div>
   </div>
 
+  <!-- delete modal -->
+  <div class="modal fade" id="clearCartModal" tabindex="-1" aria-labelledby="clearCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="clearCartModalLabel">Konfirmasi</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah Anda yakin ingin menghapus semua item dari keranjang?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-danger" id="confirmClearCart">Hapus Semua</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVLdykdjAbNzREUgHX549VEg6emNlw0rMzqjhz5dkc-XQtrejEYbhOvlLnIA8MzSDLSP0F7ZWaWsF-/pub?gid=0&single=true&output=csv";
     const webAppURL = "https://script.google.com/macros/s/AKfycbyb-DY-7WJjA0p7PuJmucSInU_vPS9x6ZDDWTHB3VdaRJCsXTpItKy7xBcEC8jNENMd/exec";
 
     let cart = [];
     let allProducts = [];
-    let productIndex = 0; // Used to create unique identifiers for products
-    
-    // Initialize Bootstrap modals
+    let productIndex = 0; 
+ 
     let modals = {};
     
+    function loadCartFromLocalStorage() {
+      const savedCart = localStorage.getItem('shoppingCart');
+      if (savedCart) {
+        cart = JSON.parse(savedCart);
+        renderCart();
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       loadProducts();
-      
-      // Initialize all modals
+      loadCartFromLocalStorage();
+
       modals.emptyCart = new bootstrap.Modal(document.getElementById('emptyCartModal'));
       modals.success = new bootstrap.Modal(document.getElementById('successModal'));
       modals.error = new bootstrap.Modal(document.getElementById('errorModal'));
@@ -182,8 +209,16 @@
       document.getElementById('successModal').addEventListener('hidden.bs.modal', () => {
         loadProducts();
       });
+      
+      // Remove previous event listener if any to prevent duplicates
+      const confirmClearBtn = document.getElementById('confirmClearCart');
+      if (confirmClearBtn) {
+        const newConfirmBtn = confirmClearBtn.cloneNode(true);
+        confirmClearBtn.parentNode.replaceChild(newConfirmBtn, confirmClearBtn);
+      }
     });
 
+    
     function renderCart() {
       const cartList = document.getElementById("cart-items");
       const totalDisplay = document.getElementById("cart-total");
@@ -218,7 +253,6 @@
     
 
     function addToCart(productId) {
-      // Find the product in allProducts array
       const product = allProducts.find(p => p.id === productId);
       if (!product) return;
       
@@ -230,14 +264,21 @@
           id: product.id,
           nama: product.nama,
           harga: product.harga,
+          gambar: product.gambar || "",
+          kategori: product.kategori || "general",
           qty: 1 
         });
       }
+      
+      localStorage.setItem('shoppingCart', JSON.stringify(cart));
+      
       renderCart();
     }
 
     function increaseQty(index) {
       cart[index].qty++;
+    
+      localStorage.setItem('shoppingCart', JSON.stringify(cart));
       renderCart();
     }
 
@@ -247,6 +288,8 @@
       } else {
         cart.splice(index, 1);
       }
+      
+      localStorage.setItem('shoppingCart', JSON.stringify(cart));
       renderCart();
     }
 
@@ -264,7 +307,6 @@
         }))
       });
 
-      // Show loading modal
       modals.loading.show();
 
       fetch(webAppURL, {
@@ -275,21 +317,18 @@
         body: payload
       })
       .then(response => {
-        // Hide loading modal
         modals.loading.hide();
-        
-        // Show success modal
+
         modals.success.show();
-        
-        // Clear cart
+
         cart = [];
         renderCart();
+        
+        localStorage.removeItem('shoppingCart');
       })
       .catch(err => {
-        // Hide loading modal
         modals.loading.hide();
         
-        // Show error modal with message
         document.getElementById('errorMessage').textContent = "Gagal mengirim pesanan: " + err.message;
         modals.error.show();
         
@@ -297,7 +336,6 @@
       });
     }
 
-    // Improved CSV parsing function to handle your specific data format
     function parseCSVRow(row) {
       const result = [];
       let startIdx = 0;
@@ -323,9 +361,8 @@
       return result;
     }
 
-    // Extract numeric price from various formats (e.g., "150000 p")
     function extractPrice(priceString) {
-      // Extract only the numeric part
+     
       const numericMatch = priceString.match(/\d+/);
       if (numericMatch) {
         return parseInt(numericMatch[0], 10);
@@ -345,7 +382,7 @@
 
           rows.forEach(row => {
             const fields = parseCSVRow(row);
-            if (fields.length < 6) return; // We need at least 6 fields based on your table
+            if (fields.length < 6) return; 
             
             const nama = fields[0].trim();
             const gambar = fields[1].trim();
@@ -354,15 +391,12 @@
             const deskripsi = fields[4].trim();  
             const kategori = fields[5].trim();
             
-            // Extract numeric price from the price field
             const harga = extractPrice(hargaRaw);
             
-            if (isNaN(stok) || stok <= 0) return; // Skip out of stock items
+            if (isNaN(stok) || stok <= 0) return; 
             
-            // Assign a unique ID to each product
             const productId = ++productIndex;
             
-            // Store product in global array
             allProducts.push({ 
               id: productId,
               nama, 
@@ -402,7 +436,6 @@
               <p>Gagal memuat produk. Silakan coba lagi nanti.</p>
             </div>`;
           
-          // Show error in modal instead of just in the page
           document.getElementById('errorMessage').textContent = "Gagal memuat produk. Silakan coba lagi nanti.";
           modals.error.show();
         });
@@ -420,6 +453,25 @@
         } else {
           card.style.display = "none";
         }
+      });
+    }
+    function clearCart() {
+      if (cart.length === 0) {
+        modals.emptyCart.show();
+        return;
+      }
+
+      const clearCartModal = new bootstrap.Modal(document.getElementById('clearCartModal'));
+      clearCartModal.show();
+
+      document.getElementById('confirmClearCart').addEventListener('click', function() {
+        cart = [];
+
+        localStorage.removeItem('shoppingCart');
+
+        renderCart();
+
+        clearCartModal.hide();
       });
     }
   </script>
