@@ -7,6 +7,45 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <style>
+    :root {
+        --bs-primary: rgb(150, 82, 39);
+        --bs-primary-rgb: 150, 82, 39;
+      }
+      
+      .btn-primary {
+        background-color: rgb(150, 82, 39);
+        border-color: rgb(150, 82, 39);
+      }
+      
+      .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+        background-color: rgb(130, 70, 30);
+        border-color: rgb(130, 70, 30);
+      }
+      
+      .btn-outline-primary {
+        color: rgb(150, 82, 39);
+        border-color: rgb(150, 82, 39);
+      }
+      
+      .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary.active {
+        background-color: rgb(150, 82, 39);
+        border-color: rgb(150, 82, 39);
+        color: white;
+      }
+      
+      .page-item.active .page-link {
+        background-color: rgb(150, 82, 39);
+        border-color: rgb(150, 82, 39);
+      }
+      
+      .page-link {
+        color: rgb(150, 82, 39);
+      }
+      
+      .page-link:hover, .page-link:focus {
+        color: rgb(130, 70, 30);
+      }
+      
     .product-card { 
       margin-bottom: 20px; 
     }
@@ -54,22 +93,91 @@
     .qty-control .qty {
       margin: 0 0.3rem;
     }
+
+    /* View toggle styling */
+    .view-toggle {
+      margin-bottom: 1rem;
+    }
+    
+    .view-toggle .btn-group {
+      margin-left: 0.5rem;
+    }
+    
+    /* Pagination styling */
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Table view styling */
+    .table-view-container {
+      display: none;
+    }
+    
+    /* Card view styling */
+    .card-view-container {
+      display: block;
+    }
   </style>
 </head>
 <body class="container py-4">
   <h2 class="mb-4">Pilih Produk</h2>
   <div class="row">
     <div class="col-md-8">
-      <div class="mb-4">
-        <label for="filter-category" class="form-label">Filter Kategori</label>
-        <select class="form-select" id="filter-category" onchange="filterProducts()">
-          <option value="all">Semua</option>
-          <option value="dompet">dompet</option>
-          <option value="tas">tas</option>
-          <option value="jaket">jaket</option> 
-        </select>
+      <div class="d-flex justify-content-between mb-4">
+        <div>
+          <label for="filter-category" class="form-label">Filter Kategori</label>
+          <select class="form-select" id="filter-category" onchange="filterProducts()">
+            <option value="all">Semua</option>
+            <option value="dompet">dompet</option>
+            <option value="tas">tas</option>
+            <option value="jaket">jaket</option> 
+          </select>
+        </div>
+        <div class="view-toggle d-flex align-items-end">
+          <label class="me-2">Tampilan:</label>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-primary active" id="card-view-btn" onclick="switchView('card')">
+              <span>Kartu</span>
+            </button>
+            <button type="button" class="btn btn-outline-primary" id="table-view-btn" onclick="switchView('table')">
+              <span>Tabel</span>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="row" id="product-list"></div>
+      
+      <!-- Card View Container -->
+      <div class="card-view-container">
+        <div class="row" id="product-list"></div>
+      </div>
+      
+      <!-- Table View Container -->
+      <div class="table-view-container">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Harga</th>
+                <th>Kategori</th>
+                <th>Deskripsi</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="product-table"></tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <nav aria-label="Product pagination">
+          <ul class="pagination" id="pagination"></ul>
+        </nav>
+      </div>
     </div>
     <div class="col-md-4">
       <div class="card shadow-sm mb-3">
@@ -77,7 +185,7 @@
           <h5 class="card-title">Keranjang</h5>
           <ul class="list-group mb-3" id="cart-items"></ul>
           <h6>Total: <span id="cart-total">Rp 0</span></h6>
-          <button class="btn btn-primary w-100" onclick="checkout()">Checkout</button>
+          <button class="btn btn-primary w-100 mb-2" onclick="checkout()">Checkout</button>
           <button class="btn btn-outline-danger w-100" onclick="clearCart()">Hapus Semua</button>
         </div>
       </div>
@@ -184,7 +292,11 @@
 
     let cart = [];
     let allProducts = [];
-    let productIndex = 0; 
+    let filteredProducts = [];
+    let productIndex = 0;
+    let currentPage = 1;
+    let itemsPerPage = 6;
+    let currentView = 'card';
  
     let modals = {};
     
@@ -205,19 +317,16 @@
       modals.error = new bootstrap.Modal(document.getElementById('errorModal'));
       modals.loading = new bootstrap.Modal(document.getElementById('loadingModal'));
       
-      // Add event listener to success modal to reload products when closed
       document.getElementById('successModal').addEventListener('hidden.bs.modal', () => {
         loadProducts();
       });
       
-      // Remove previous event listener if any to prevent duplicates
       const confirmClearBtn = document.getElementById('confirmClearCart');
       if (confirmClearBtn) {
         const newConfirmBtn = confirmClearBtn.cloneNode(true);
         confirmClearBtn.parentNode.replaceChild(newConfirmBtn, confirmClearBtn);
       }
     });
-
     
     function renderCart() {
       const cartList = document.getElementById("cart-items");
@@ -251,6 +360,20 @@
       totalDisplay.textContent = "Rp " + total.toLocaleString();
     }
     
+    function switchView(view) {
+      currentView = view;
+      currentPage = 1;
+      
+      // Toggle active class on buttons
+      document.getElementById('card-view-btn').classList.toggle('active', view === 'card');
+      document.getElementById('table-view-btn').classList.toggle('active', view === 'table');
+      
+      // Show/hide containers
+      document.querySelector('.card-view-container').style.display = view === 'card' ? 'block' : 'none';
+      document.querySelector('.table-view-container').style.display = view === 'table' ? 'block' : 'none';
+      
+      renderProducts();
+    }
 
     function addToCart(productId) {
       const product = allProducts.find(p => p.id === productId);
@@ -362,7 +485,6 @@
     }
 
     function extractPrice(priceString) {
-     
       const numericMatch = priceString.match(/\d+/);
       if (numericMatch) {
         return parseInt(numericMatch[0], 10);
@@ -375,8 +497,6 @@
         .then(res => res.text())
         .then(data => {
           const rows = data.trim().split("\n").slice(1); // Skip header row
-          const productList = document.getElementById("product-list");
-          productList.innerHTML = "";
           allProducts = [];
           productIndex = 0;
 
@@ -406,25 +526,6 @@
               deskripsi, 
               kategori 
             });
-            
-            const col = document.createElement("div");
-            col.className = "col-md-4 mb-4 product-card";
-            col.setAttribute("data-category", kategori);
-            col.innerHTML = `
-              <div class="card h-100">
-                <img src="${gambar}" class="card-img-top" alt="${nama}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
-                <div class="card-body text-center">
-                  <h5 class="card-title">${nama}</h5>
-                  <p class="card-text">Rp ${harga.toLocaleString()}</p>
-                  <p class="card-text"><small class="text-muted">${deskripsi || ''}</small></p>
-                  <p class="card-text"><small class="text-muted">Kategori: ${kategori}</small></p>
-                  <button class="btn btn-sm btn-outline-success" onclick="addToCart(${productId})">
-                    <span>Tambah ke Keranjang</span>
-                  </button>
-                </div>
-              </div>
-            `;
-            productList.appendChild(col);
           });
           
           filterProducts();
@@ -443,18 +544,195 @@
 
     function filterProducts() {
       const selectedCategory = document.getElementById("filter-category").value;
-      const productCards = document.querySelectorAll(".product-card");
       
-      productCards.forEach(card => {
-        const category = card.getAttribute("data-category");
-        
-        if (selectedCategory === "all" || category === selectedCategory) {
-          card.style.display = "block";
-        } else {
-          card.style.display = "none";
-        }
+      if (selectedCategory === "all") {
+        filteredProducts = [...allProducts];
+      } else {
+        filteredProducts = allProducts.filter(product => product.kategori === selectedCategory);
+      }
+      
+      currentPage = 1;
+      renderProducts();
+    }
+    
+    function renderProducts() {
+      renderPagination();
+      
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, filteredProducts.length);
+      const currentProducts = filteredProducts.slice(startIndex, endIndex);
+      
+      if (currentView === 'card') {
+        renderCardView(currentProducts);
+      } else {
+        renderTableView(currentProducts);
+      }
+    }
+    
+    function renderCardView(products) {
+      const productList = document.getElementById("product-list");
+      productList.innerHTML = "";
+      
+      if (products.length === 0) {
+        productList.innerHTML = `
+          <div class="col-12 text-center">
+            <p>Tidak ada produk yang ditemukan.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      products.forEach(product => {
+        const col = document.createElement("div");
+        col.className = "col-md-4 mb-4 product-card";
+        col.setAttribute("data-category", product.kategori);
+        col.innerHTML = `
+          <div class="card h-100">
+            <img src="${product.gambar}" class="card-img-top" alt="${product.nama}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+            <div class="card-body text-center">
+              <h5 class="card-title">${product.nama}</h5>
+              <p class="card-text">Rp ${product.harga.toLocaleString()}</p>
+              <p class="card-text"><small class="text-muted">${product.deskripsi || ''}</small></p>
+              <p class="card-text"><small class="text-muted">Kategori: ${product.kategori}</small></p>
+              <button class="btn btn-sm btn-outline-success" onclick="addToCart(${product.id})">
+                <span>Tambah ke Keranjang</span>
+              </button>
+            </div>
+          </div>
+        `;
+        productList.appendChild(col);
       });
     }
+    
+    function renderTableView(products) {
+      const productTable = document.getElementById("product-table");
+      productTable.innerHTML = "";
+      
+      if (products.length === 0) {
+        productTable.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center">Tidak ada produk yang ditemukan.</td>
+          </tr>
+        `;
+        return;
+      }
+      
+      products.forEach(product => {
+        const row = document.createElement("tr");
+        row.setAttribute("data-category", product.kategori);
+        row.innerHTML = `
+          <td>${product.nama}</td>
+          <td>Rp ${product.harga.toLocaleString()}</td>
+          <td>${product.kategori}</td>
+          <td>${product.deskripsi || '-'}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-success" onclick="addToCart(${product.id})">
+              Tambah
+            </button>
+          </td>
+        `;
+        productTable.appendChild(row);
+      });
+    }
+    
+    function renderPagination() {
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+      
+      const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+      
+      if (totalPages <= 1) {
+        pagination.style.display = "none";
+        return;
+      }
+      
+      pagination.style.display = "flex";
+      
+      // Previous button
+      const prevLi = document.createElement("li");
+      prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+      prevLi.innerHTML = `
+        <a class="page-link" href="#" aria-label="Previous" ${currentPage > 1 ? `onclick="goToPage(${currentPage - 1}); return false;"` : ''}>
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      `;
+      pagination.appendChild(prevLi);
+      
+      // Page numbers
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+      
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+      
+      if (startPage > 1) {
+        const firstLi = document.createElement("li");
+        firstLi.className = "page-item";
+        firstLi.innerHTML = `
+          <a class="page-link" href="#" onclick="goToPage(1); return false;">1</a>
+        `;
+        pagination.appendChild(firstLi);
+        
+        if (startPage > 2) {
+          const ellipsisLi = document.createElement("li");
+          ellipsisLi.className = "page-item disabled";
+          ellipsisLi.innerHTML = `
+            <a class="page-link" href="#">...</a>
+          `;
+          pagination.appendChild(ellipsisLi);
+        }
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        const pageLi = document.createElement("li");
+        pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
+        pageLi.innerHTML = `
+          <a class="page-link" href="#" onclick="goToPage(${i}); return false;">${i}</a>
+        `;
+        pagination.appendChild(pageLi);
+      }
+      
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          const ellipsisLi = document.createElement("li");
+          ellipsisLi.className = "page-item disabled";
+          ellipsisLi.innerHTML = `
+            <a class="page-link" href="#">...</a>
+          `;
+          pagination.appendChild(ellipsisLi);
+        }
+        
+        const lastLi = document.createElement("li");
+        lastLi.className = "page-item";
+        lastLi.innerHTML = `
+          <a class="page-link" href="#" onclick="goToPage(${totalPages}); return false;">${totalPages}</a>
+        `;
+        pagination.appendChild(lastLi);
+      }
+      
+      // Next button
+      const nextLi = document.createElement("li");
+      nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
+      nextLi.innerHTML = `
+        <a class="page-link" href="#" aria-label="Next" ${currentPage < totalPages ? `onclick="goToPage(${currentPage + 1}); return false;"` : ''}>
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      `;
+      pagination.appendChild(nextLi);
+    }
+    
+    function goToPage(page) {
+      currentPage = page;
+      renderProducts();
+      
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
     function clearCart() {
       if (cart.length === 0) {
         modals.emptyCart.show();
