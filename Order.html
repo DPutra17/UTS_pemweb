@@ -201,7 +201,6 @@
                   <th>Nama</th>
                   <th>Harga</th>
                   <th>Kategori</th>
-                  <th>Deskripsi</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -884,7 +883,6 @@
           row.innerHTML = `
           <td>${product.nama}</td>
           <td>Rp ${product.harga.toLocaleString()}</td>
-          <td>${product.kategori}</td>
           <td>${product.deskripsi || "-"}</td>
           <td>
             <button class="btn btn-sm btn-primary" onclick="addToCart(${

@@ -288,7 +288,6 @@
                   <th>Harga</th>
                   <th>Stok</th>
                   <th>Kategori</th>
-                  <th>Deskripsi</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
@@ -747,41 +746,73 @@
       // Function to display products in table view
       function displayTableView(products) {
         const tableBody = document.getElementById("produk-table");
+        const modalContainer = document.getElementById("modal-container") || createModalContainer();
+        
         tableBody.innerHTML = "";
-
+        modalContainer.innerHTML = ""; 
+        
         if (products.length === 0) {
           tableBody.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center">Tidak ada produk yang tersedia untuk kategori ini.</td>
-      </tr>
-    `;
+          <tr>
+            <td colspan="5" class="text-center">Tidak ada produk yang tersedia untuk kategori ini.</td>
+          </tr>
+          `;
           return;
         }
 
         products.forEach((product) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-      <td>${product.nama}</td>
-      <td>Rp ${product.harga.toLocaleString()}</td>
-      <td>${product.stok}</td>
-      <td>${product.kategori || "Umum"}</td>
-      <td>${product.deskripsi}</td>
-      <td>
-        <button class="btn btn-sm btn-primary" id="table-btn-${
-          product.id
-        }">Pesan</button>
-      </td>
-    `;
-
+            <td>${product.nama}</td>
+            <td>Rp ${product.harga.toLocaleString()}</td>
+            <td>${product.stok}</td>
+            <td>${product.kategori || "Umum"}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalTableProduk${product.id}">
+                Detail
+              </button>
+            </td>
+          `;
+          
           tableBody.appendChild(row);
-
+          
+          // Create modal for this product
+          const modalDiv = document.createElement("div");
+          modalDiv.innerHTML = `
+            <!-- Modal Produk -->
+            <div class="modal fade" id="modalTableProduk${product.id}" tabindex="-1" aria-labelledby="modalTableProduk${product.id}Label" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="modalTableProduk${product.id}Label">${product.nama}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <img src="${product.gambar}" class="img-fluid" alt="${product.nama}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'" />
+                      </div>
+                      <div class="col-md-6">
+                        <p>${product.deskripsi}</p>
+                        <p><strong>Harga:</strong> Rp ${product.harga.toLocaleString()}</p>
+                        <p><strong>Stok:</strong> ${product.stok}</p>
+                        <p><strong>Kategori:</strong> ${product.kategori || "Umum"}</p>
+                        <button class="btn btn-primary" id="table-product-${product.id}-btn">Pesan Sekarang</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+          
+          modalContainer.appendChild(modalDiv);
+          
           // Add event listener after the element is in DOM
           setTimeout(() => {
-            const orderButton = document.getElementById(
-              `table-btn-${product.id}`
-            );
+            const orderButton = document.getElementById(`table-product-${product.id}-btn`);
             if (orderButton) {
-              orderButton.addEventListener("click", function () {
+              orderButton.addEventListener("click", function() {
                 addToCart(product);
               });
             }
@@ -789,6 +820,14 @@
         });
       }
 
+      // Helper function to create modal container if it doesn't exist
+      function createModalContainer() {
+        const container = document.createElement("div");
+        container.id = "modal-container";
+        document.body.appendChild(container);
+        return container;
+      }
+      
       // Function to update pagination controls
       function updatePagination(totalPages) {
         const paginationElement = document.getElementById("pagination");
