@@ -883,7 +883,7 @@
           row.innerHTML = `
           <td>${product.nama}</td>
           <td>Rp ${product.harga.toLocaleString()}</td>
-          <td>${product.deskripsi || "-"}</td>
+          <td>${product.kategori || "-"}</td>
           <td>
             <button class="btn btn-sm btn-primary" onclick="addToCart(${
               product.id
