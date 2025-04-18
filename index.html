@@ -175,7 +175,6 @@
         color: #f5c542; /* efek hover */
       }
 
-
       @media (max-width: 767px) {
         .navbar-brand-centered {
           display: none !important;
@@ -191,7 +190,8 @@
         }
 
         .banner img {
-          height: 100vh; 
+          width: 100%;
+          height: auto; 
         }
 
         .banner p {
@@ -235,30 +235,41 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top navbar-transparent special-gothic-expanded-one-regular">
       <div class="container">
-  
+        <!-- Mobile Logo -->
+        <a class="navbar-brand d-lg-none" href="index.html">
+          <i class="bi bi-house-door-fill fs-4"></i>
+        </a>
+    
         <!-- Toggle button -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
           data-bs-target="#navbarNav" aria-controls="navbarNav"
           aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-
-        <!-- Centered Logo on Desktop -->
-        <a class="navbar-brand mx-auto d-none d-lg-block navbar-brand-centered" href="index.html">
-          <img src="assets/icon.png" width="30" alt="Logo" />
-        </a>
-
-        <!-- Menu Items -->
-        <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-          <ul class="navbar-nav mx-auto text-center">
-            <li class="nav-item">
-              <a class="nav-link active" href="index.html">Home</a>
-            </li>
-            <li class="nav-item d-none d-lg-block invisible">
-              <a class="nav-link" href="#">Invisible</a>
-            </li>
+    
+        <!-- Navigation Items -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mx-auto text-center align-items-center">
+            <!-- Left -->
             <li class="nav-item">
               <a class="nav-link" href="Product.html">Product</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="about.html">About</a>
+            </li>
+            
+            <!-- Desktop Logo (Centered) -->
+            <li class="nav-item d-none d-lg-block mx-3">
+              <a class="navbar-brand m-0 d-flex justify-content-center" href="index.html">
+                <i class="bi bi-house-door-fill fs-4"></i>
+              </a>
+            </li>
+            <!-- Right -->
+            <li class="nav-item">
+              <a class="nav-link" href="news.html">News</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="contact.html">Contact</a>
             </li>
           </ul>
         </div>
