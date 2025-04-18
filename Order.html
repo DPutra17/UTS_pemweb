@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Order Page</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
   <style>
     .product-card { 
       margin-bottom: 20px; 
@@ -39,6 +40,20 @@
     .card:hover::after {
       opacity: 1;
     }
+    
+    .qty-control {
+      display: flex;
+      align-items: center;
+    }
+    
+    .qty-control .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .qty-control .qty {
+      margin: 0 0.3rem;
+    }
   </style>
 </head>
 <body class="container py-4">
@@ -68,6 +83,81 @@
     </div>
   </div>
 
+  <!-- Bootstrap Modals -->
+  <!-- Empty Cart Modal -->
+  <div class="modal fade" id="emptyCartModal" tabindex="-1" aria-labelledby="emptyCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="emptyCartModalLabel">Perhatian</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Keranjang kosong!</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="successModalLabel">Sukses</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-3">
+            <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+          </div>
+          <p class="text-center">Pesanan berhasil dikirim!</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Modal -->
+  <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="errorModalLabel">Error</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-3">
+            <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+          </div>
+          <p class="text-center" id="errorMessage">Gagal mengirim pesanan.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Modal -->
+  <div class="modal fade" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center p-4">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p>Memproses pesanan Anda...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTVLdykdjAbNzREUgHX549VEg6emNlw0rMzqjhz5dkc-XQtrejEYbhOvlLnIA8MzSDLSP0F7ZWaWsF-/pub?gid=0&single=true&output=csv";
     const webAppURL = "https://script.google.com/macros/s/AKfycbyb-DY-7WJjA0p7PuJmucSInU_vPS9x6ZDDWTHB3VdaRJCsXTpItKy7xBcEC8jNENMd/exec";
@@ -75,6 +165,24 @@
     let cart = [];
     let allProducts = [];
     let productIndex = 0; // Used to create unique identifiers for products
+    
+    // Initialize Bootstrap modals
+    let modals = {};
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProducts();
+      
+      // Initialize all modals
+      modals.emptyCart = new bootstrap.Modal(document.getElementById('emptyCartModal'));
+      modals.success = new bootstrap.Modal(document.getElementById('successModal'));
+      modals.error = new bootstrap.Modal(document.getElementById('errorModal'));
+      modals.loading = new bootstrap.Modal(document.getElementById('loadingModal'));
+      
+      // Add event listener to success modal to reload products when closed
+      document.getElementById('successModal').addEventListener('hidden.bs.modal', () => {
+        loadProducts();
+      });
+    });
 
     function renderCart() {
       const cartList = document.getElementById("cart-items");
@@ -87,20 +195,27 @@
         total += itemTotal;
 
         const li = document.createElement("li");
-        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.className = "list-group-item";
         li.innerHTML = `
-          <div>
-            <strong>${item.nama}</strong><br>
-            <small>${item.qty} x Rp ${item.harga.toLocaleString()}</small>
-            <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeFromCart(${index})">-</button>
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <strong>${item.nama}</strong><br>
+              <small>Rp ${item.harga.toLocaleString()} × </small>
+              <div class="qty-control d-inline-flex mt-1">
+                <button class="btn btn-sm btn-outline-danger" onclick="decreaseQty(${index})">-</button>
+                <span class="qty mx-2">${item.qty}</span>
+                <button class="btn btn-sm btn-outline-success" onclick="increaseQty(${index})">+</button>
+              </div>
+            </div>
+            <span>Rp ${itemTotal.toLocaleString()}</span>
           </div>
-          <span>Rp ${itemTotal.toLocaleString()}</span>
         `;
         cartList.appendChild(li);
       });
 
       totalDisplay.textContent = "Rp " + total.toLocaleString();
     }
+    
 
     function addToCart(productId) {
       // Find the product in allProducts array
@@ -121,7 +236,12 @@
       renderCart();
     }
 
-    function removeFromCart(index) {
+    function increaseQty(index) {
+      cart[index].qty++;
+      renderCart();
+    }
+
+    function decreaseQty(index) {
       if (cart[index].qty > 1) {
         cart[index].qty--;
       } else {
@@ -132,7 +252,7 @@
 
     function checkout() {
       if (cart.length === 0) {
-        alert("Keranjang kosong!");
+        modals.emptyCart.show();
         return;
       }
 
@@ -144,10 +264,8 @@
         }))
       });
 
-      const checkoutBtn = document.querySelector('button[onclick="checkout()"]');
-      const originalText = checkoutBtn.textContent;
-      checkoutBtn.disabled = true;
-      checkoutBtn.textContent = "Processing...";
+      // Show loading modal
+      modals.loading.show();
 
       fetch(webAppURL, {
         method: "POST",
@@ -157,17 +275,24 @@
         body: payload
       })
       .then(response => {
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = originalText;
-        alert("Pesanan berhasil dikirim!");
+        // Hide loading modal
+        modals.loading.hide();
+        
+        // Show success modal
+        modals.success.show();
+        
+        // Clear cart
         cart = [];
         renderCart();
-        loadProducts(); 
       })
       .catch(err => {
-        checkoutBtn.disabled = false;
-        checkoutBtn.textContent = originalText;
-        alert("Gagal mengirim pesanan: " + err.message);
+        // Hide loading modal
+        modals.loading.hide();
+        
+        // Show error modal with message
+        document.getElementById('errorMessage').textContent = "Gagal mengirim pesanan: " + err.message;
+        modals.error.show();
+        
         console.error("Fetch error:", err);
       });
     }
@@ -259,7 +384,9 @@
                   <p class="card-text">Rp ${harga.toLocaleString()}</p>
                   <p class="card-text"><small class="text-muted">${deskripsi || ''}</small></p>
                   <p class="card-text"><small class="text-muted">Kategori: ${kategori}</small></p>
-                  <button class="btn btn-sm btn-outline-success" onclick="addToCart(${productId})">+</button>
+                  <button class="btn btn-sm btn-outline-success" onclick="addToCart(${productId})">
+                    <span>Tambah ke Keranjang</span>
+                  </button>
                 </div>
               </div>
             `;
@@ -274,6 +401,10 @@
             `<div class="col-12 text-center text-danger">
               <p>Gagal memuat produk. Silakan coba lagi nanti.</p>
             </div>`;
+          
+          // Show error in modal instead of just in the page
+          document.getElementById('errorMessage').textContent = "Gagal memuat produk. Silakan coba lagi nanti.";
+          modals.error.show();
         });
     }
 
@@ -291,8 +422,6 @@
         }
       });
     }
-
-    window.addEventListener('DOMContentLoaded', loadProducts);
   </script>
 </body>
 </html>
